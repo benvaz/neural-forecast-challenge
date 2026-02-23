@@ -1,43 +1,36 @@
-# Neural Signal Forecasting - HDR SMood Challenge Y2
+# Neural Signal Forecasting — HDR SMood Challenge Y2
 
-Submission for the Neural Signal Forecasting track of the [2025 HDR Scientific Mood Challenge](https://www.nsfhdr.org/html/mlchallenge-y2/).
+Multi-component Ridge ensemble predicting cortical neural activity for the [2025 HDR SMood Challenge](https://www.codabench.org/competitions/9854/).
+
+## Structure
+
+```
+baselines/
+  submissions/neural_forecast_blend/
+    model.py              # inference (CodaBench submission)
+    requirements.txt
+  training/neural_forecast_blend/
+    train_blend.py        # Ridge + Koopman weight training
+    validate.py           # local validation
+```
+
+Model weights are not included due to size. Generate via `python baselines/training/neural_forecast_blend/train_blend.py`.
 
 ## Approach
 
-Multi-component ensemble combining Ridge regression variants with Koopman operator corrections for neural signal forecasting. The model predicts 10 future timesteps from 10 observed timesteps across multiple cortical recording channels.
+Four Ridge regression variants blended per-timestep via learned weights:
 
-### Components
-- **NeighborRidge (NB):** Per-channel Ridge using K most-correlated neighbor channels as features
-- **MultiBand (MB):** Ridge on 6 summary statistics per channel per frequency band
-- **RAW:** Ridge on raw temporal values across all bands
-- **Koopman:** PCA-based latent dynamics correction on persistence forecast
+- **NeighborRidge (NB)** — per-channel Ridge using K most-correlated neighbor channels
+- **MultiBand (MB)** — Ridge on 6 summary statistics per channel per frequency band
+- **RAW** — Ridge on raw temporal values across all bands
+- **Koopman** — PCA-based latent dynamics correction on persistence forecast
 
-### Inference Architecture
-- Variance-based routing splits test batches into day-specific (d1) and private (priv) paths
-- Per-timestep blending via blend_t arrays allows time-varying component weights
-- Separate weight optimization for each path
-
-## Repository Structure
-
-baselines/submissions/neural_forecast_blend/
-  model.py              # Inference model (submitted to CodaBench)
-  requirements.txt
-baselines/training/neural_forecast_blend/
-  train_blend.py        # Core training: Ridge + Koopman per monkey
-  validate.py           # Local validation script
-
-### Model Weights
-
-Weights are not included due to size. Generate them via:
-
-  python baselines/training/neural_forecast_blend/train_blend.py
-
-Training data is available from the competition organizers.
-
-## Installation
-
-  pip install numpy scikit-learn
+Variance-based routing splits batches into day-specific (d1) and private (priv) paths with separate weight optimization.
 
 ## References
 
-- Competition: https://www.codabench.org/competitions/9854/
+- Competition: [Neural Signal Forecasting Challenge](https://www.codabench.org/competitions/9854/)
+
+## License
+
+MIT
